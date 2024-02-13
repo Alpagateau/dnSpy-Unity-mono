@@ -30,6 +30,8 @@ namespace UnityMonoDllSourceCodePatcher {
 		public readonly string PlatformToolset;
 		public readonly UnityVersion UnityVersion;
 
+		public bool isVerbose = false;
+
 		public abstract IEnumerable<ProjectInfo> AllProjects { get; }
 		public abstract string[] SolutionConfigurations { get; }
 		public abstract (string archName, string configName)[] SolutionPlatforms { get; }

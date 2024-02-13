@@ -38,7 +38,14 @@ namespace UnityMonoDllSourceCodePatcher {
 
 		static string ToString(Guid guid) => guid.ToString("B").ToUpperInvariant();
 
+		public void Vlog(string message) {
+			if (solutionOptions.isVerbose) {
+				Console.WriteLine(message);
+			}
+		}
+
 		public void Patch() {
+			Vlog(" -- V40 patcher -- ");
 			AddProjects();
 			AddProjectConfigurationPlatforms();
 			AddNestedProjects();
@@ -53,12 +60,14 @@ namespace UnityMonoDllSourceCodePatcher {
 		}
 
 		void AddProjectDir(ref int index) {
+			Vlog("-> Added dir " + index);
 			var dirName = Path.GetFileName(solutionOptions.UnityVersionDir);
 			AddProjectInfo(ref index, solutionDirGuid, unityVersionDirGuid, dirName, dirName);
 		}
 
 		void AddProject(ref int index, ProjectInfo project) {
 			var name = Path.GetFileNameWithoutExtension(project.Filename);
+			Vlog("Adding project " + name);
 			var projectRelativePath = GetProjectRelativePath(project);
 			AddProjectInfo(ref index, cppProjectGuid, project.Guid, name, projectRelativePath);
 		}
@@ -71,6 +80,8 @@ namespace UnityMonoDllSourceCodePatcher {
 		}
 
 		void AddProjectInfo(ref int index, Guid typeGuid, Guid projectGuid, string name, string projectRelativePath) {
+			Vlog("--> Added info " + name);
+			Vlog("--> Added info " + projectGuid);
 			var typeGuidString = ToString(typeGuid);
 			var projectGuidString = ToString(projectGuid);
 			textFilePatcher.Insert(index++, $"Project(\"{typeGuidString}\") = \"{name}\", \"{projectRelativePath}\", \"{projectGuidString}\"");

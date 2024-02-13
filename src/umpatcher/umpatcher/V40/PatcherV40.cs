@@ -26,6 +26,7 @@ namespace UnityMonoDllSourceCodePatcher.V40 {
 		public PatcherV40(string unityVersion, string unityGitHash, string unityRepoPath, string dnSpyUnityMonoRepoPath, string gitExePath, string windowsTargetPlatformVersion, string platformToolset)
 			: base(unityVersion, unityGitHash, unityRepoPath, dnSpyUnityMonoRepoPath, gitExePath) {
 			solutionOptions = new SolutionOptionsV40(dnSpyRepo.RepoPath, dnSpyVersionPath, unityVersion, windowsTargetPlatformVersion, platformToolset, GetProjectFilesKind(unityVersion));
+			solutionOptions.isVerbose = isVerbose;
 		}
 
 		static ProjectFilesKind GetProjectFilesKind(string unityVersion) {
