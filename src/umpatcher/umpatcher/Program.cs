@@ -104,6 +104,8 @@ namespace UnityMonoDllSourceCodePatcher {
 				patcher = new V40.PatcherV40(options.UnityVersion, options.UnityGitHash, options.UnityRepoPath, options.DnSpyUnityMonoRepoPath, options.GitExePath, options.WindowsTargetPlatformVersion, options.PlatformToolset);
 				break;
 			}
+			patcher.isVerbose = options.isVerbose;
+			patcher.ignoreGitignore = options.ignoreGitIgnore;
 			patcher.Patch();
 		}
 

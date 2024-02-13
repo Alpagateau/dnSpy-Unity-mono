@@ -71,7 +71,12 @@ namespace UnityMonoDllSourceCodePatcher {
 						options.PatchOptions.PlatformToolset = nextArg;
 						i++;
 						break;
-
+					case "--verbose":
+						options.PatchOptions.isVerbose = true;
+						break;
+					case "--forget-gitignore":
+						options.PatchOptions.ignoreGitIgnore = true;
+						break;
 					default:
 						throw new CommandLineParserException($"Unknown option '{arg}'");
 					}

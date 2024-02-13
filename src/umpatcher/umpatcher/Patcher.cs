@@ -28,6 +28,8 @@ namespace UnityMonoDllSourceCodePatcher {
 		readonly GitRepo unityRepo;
 		protected readonly GitRepo dnSpyRepo;
 		protected readonly string dnSpyVersionPath;
+		public bool isVerbose;
+		public bool ignoreGitignore = false;
 
 		protected Patcher(string unityVersion, string unityGitHash, string unityRepoPath, string dnSpyUnityMonoRepoPath, string gitExePath) {
 			this.unityVersion = unityVersion ?? throw new ArgumentNullException(nameof(unityVersion));
@@ -39,7 +41,13 @@ namespace UnityMonoDllSourceCodePatcher {
 
 		void Log(string message) => Console.WriteLine(message);
 
+		void Vlog(string message) { 
+			if(isVerbose)
+				Console.WriteLine(message);
+		}
+
 		public void Patch() {
+			Vlog("Patch has started...");
 			if (Directory.Exists(dnSpyVersionPath))
 				throw new ProgramException($"Directory {dnSpyVersionPath} already exists");
 			CopyOriginalUnityFiles();
@@ -59,14 +67,18 @@ namespace UnityMonoDllSourceCodePatcher {
 			dnSpyRepo.CheckOut(Constants.DnSpyUnityRepo_master_Branch);
 			dnSpyRepo.ThrowIfTreeNotClean();
 
+			Vlog("Checking submodules");
 			var submodules = Submodules;
 			if (submodules.Length != 0) {
 				unityRepo.SubmoduleInit();
-				foreach (var relPath in submodules)
+				foreach (var relPath in submodules) {
 					unityRepo.SubmoduleUpdate(relPath);
+					Vlog("->" + relPath.TrimStart('/'));
+				}
 			}
 			unityRepo.ThrowIfTreeNotClean();
 
+			Vlog("Copying files from unity repo to dnSpy repo");
 			FileUtils.CopyFilesFromTo(unityRepo.RepoPath, dnSpyVersionPath);
 			foreach (var dir in UnityFoldersToCopy) {
 				var sourceDir = PathCombine(unityRepo.RepoPath, dir);
@@ -74,10 +86,11 @@ namespace UnityMonoDllSourceCodePatcher {
 				FileUtils.CopyDirectoryFromTo(sourceDir, destinationDir);
 			}
 
-			var gitignore = Path.Combine(dnSpyVersionPath, "mono", "cil", ".gitignore");
-			if (!TextFilePatcher.RemoveLines(gitignore, line => line.Text == "/opcode.def"))
-				throw new ProgramException("Couldn't remove /opcode.def from .gitignore");
-
+			if (!ignoreGitignore) {
+				var gitignore = Path.Combine(dnSpyVersionPath, "mono", "cil", ".gitignore");
+				if (!TextFilePatcher.RemoveLines(gitignore, line => line.Text == "/opcode.def"))
+					throw new ProgramException("Couldn't remove /opcode.def from .gitignore");
+			}
 			Log($"Committing copied files");
 			dnSpyRepo.CommitAllFiles($"Add Unity files ({Path.GetFileName(dnSpyVersionPath)}), commit hash {unityGitHash}");
 		}

@@ -46,5 +46,7 @@ namespace UnityMonoDllSourceCodePatcher {
 		public string? GitExePath;
 		public string? WindowsTargetPlatformVersion;
 		public string? PlatformToolset;
+		public bool isVerbose = false;
+		public bool ignoreGitIgnore = false;
 	}
 }
